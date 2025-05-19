@@ -7,6 +7,7 @@ let clickCount = 0;
 let timeLeftSec = 60;
 let timerInterval;
 let limit = 100;
+let powerUpUsed = false;
 
 let offset = Math.floor(Math.random() * limit);
 
@@ -158,16 +159,25 @@ async function displayCards() {
 }
 
 function handlePowerUp() {
-  if (powerUpUsed) return;
-  $(".card").addClass("flip");
-  lockBoard = true;
-  setTimeout(() => {
-    $(".card").removeClass("flip");
-    resetBoard();
-    lockBoard = false;
-  }, 2000);
+  if (powerUpUsed) {
+    alert("You can only use the power-up once per game!");
+    return;
+  }
+
   powerUpUsed = true;
-  $("#power-up-btn").prop("disabled", true);
+  $("#power-up").prop("disabled", true).text("Power-Up Used");
+
+  const allCards = $(".card").not(".matched");
+  allCards.addClass("flip");
+
+  setTimeout(() => {
+    allCards.each(function () {
+      const $card = $(this);
+      if (!$card.hasClass("matched")) {
+        $card.removeClass("flip");
+      }
+    });
+  }, 3000);
 }
 
 function applyTheme(theme) {
@@ -187,6 +197,10 @@ function resetGame() {
   clearInterval(timerInterval);
   timeLeftSec = 60;
   $("#timer").text(timeLeftSec);
+
+  powerUpUsed = false;
+  $("#power-up").prop("disabled", false).text("🔍 Use Power-Up");
+
   displayCards();
   updateStatus();
 }
@@ -206,6 +220,6 @@ $(document).ready(() => {
   applyTheme(selectedTheme);
 });
 
+  $("#power-up").on("click", handlePowerUp);
 
-  $("#power-up-btn").on("click", handlePowerUp);
 });
