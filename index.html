@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- import jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="index.js"></script>
+</head>
+
+<body class="light">
+  <div>
+    <label for="difficulty">Difficulty:</label>
+    <select id="difficulty">
+      <option value="3">Easy (3 pairs)</option>
+      <option value="6">Medium (6 pairs)</option>
+      <option value="9">Hard (9 pairs)</option>
+    </select>
+
+    <label for="theme">Theme:</label>
+    <select id="theme">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+    <button id="power-up">🔍 Reveal All (1x)</button>
+  </div>
+
+  <div id="status">
+    Clicks: <span id="click-count">0</span> |
+    Matches: <span id="matched-count">0</span> |
+    Pairs Left: <span id="pairs-left">3</span> |
+    Timer: <span id="timer">60</span>
+    <button onclick="resetGame()">🔄 Reset Game</button>
+  </div>
+
+
+  <div id="game-board"></div>
+</body>
+
+</html>

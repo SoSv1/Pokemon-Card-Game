@@ -3,12 +3,20 @@ let secondCard = null;
 let cards = [];
 let lockBoard = false;
 let matchesFound = 0;
-const totalPairs = 3;
 let clickCount = 0;
 let timeLeftSec = 60;
 let timerInterval;
 let limit = 100;
+
 let offset = Math.floor(Math.random() * limit);
+
+const difficultyMap = {
+  easy: 3,
+  medium: 6,
+  hard: 9,
+};
+let totalPairs = difficultyMap.easy; 
+let currentTheme = "light";
 
 function resetBoard() {
   [firstCard, secondCard] = [null, null];
@@ -88,9 +96,23 @@ function shuffleArray(array) {
   }
 }
 
+function applyGridClass() {
+  const board = $("#game-board");
+  board.removeClass("grid-easy grid-medium grid-hard");
+
+  if (totalPairs === 3) {
+    board.addClass("grid-easy");
+  } else if (totalPairs === 6) {
+    board.addClass("grid-medium");
+  } else {
+    board.addClass("grid-hard");
+  }
+}
+
 async function displayCards() {
   const board = $("#game-board");
   board.empty();
+  applyGridClass()
 
   try {
     let response = await fetch(`https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`);
@@ -108,9 +130,14 @@ async function displayCards() {
     }
     shuffleArray(cards);
 
+    $("#theme").on("change", () => {
+      const theme = $("#theme").val();
+      $("body").removeClass("light dark").addClass(theme);
+    });
+
     cards.forEach((card, index) => {
       const cardElement = $(`
-        <div class="card" data-index="${index}">
+        <div class="card ${theme}" data-index="${index}">
           <div class="card-inner">
             <div class="card-front">
               <img class="card-front" src="back.webp" alt="">
@@ -130,21 +157,55 @@ async function displayCards() {
   }
 }
 
+function handlePowerUp() {
+  if (powerUpUsed) return;
+  $(".card").addClass("flip");
+  lockBoard = true;
+  setTimeout(() => {
+    $(".card").removeClass("flip");
+    resetBoard();
+    lockBoard = false;
+  }, 2000);
+  powerUpUsed = true;
+  $("#power-up-btn").prop("disabled", true);
+}
+
+function applyTheme(theme) {
+  $("body").removeClass("theme-light theme-dark");
+  $("body").addClass(`theme-${theme}`);
+}
+
 function resetGame() {
+  const selectedDifficulty = parseInt($("#difficulty").val());
+  totalPairs = selectedDifficulty;
   offset = Math.floor(Math.random() * limit)
+  console.log("game resetting");
   firstCard = null;
   secondCard = null;
-  lockBoard = false;
   matchesFound = 0;
   clickCount = 0;
+  clearInterval(timerInterval);
   timeLeftSec = 60;
   $("#timer").text(timeLeftSec);
-  clearInterval(timerInterval);
-  updateStatus();
   displayCards();
+  updateStatus();
 }
 
 $(document).ready(() => {
   updateStatus();
   displayCards();
+
+  $("#difficulty").on("change", function () {
+    const level = $(this).val();
+    totalPairs = difficultyMap[level];
+    resetGame();
+  });
+
+  $("#theme").on("change", function () {
+  const selectedTheme = $(this).val(); 
+  applyTheme(selectedTheme);
+});
+
+
+  $("#power-up-btn").on("click", handlePowerUp);
 });
